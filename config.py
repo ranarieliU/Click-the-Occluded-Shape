@@ -2,6 +2,11 @@
 clicks_threshold = 3
 grid_size = 70
 
+touches_threshold_list = [2, 3, 4, 5]
+grid_sizes_list = [70, 60, 80, 50]
+number_iterations_list = [500, 1000, 2000]
+sampled_points_list = [200, 1000]
+
 number_of_iterations = 1
 
 sampled_points = 200
@@ -12,7 +17,7 @@ debug_images = False
 create_heat_maps = False
 new_medial_axis = True
 
-not_hidden_images_numbers = [1, 2, 3, 4, 5, 6]
+not_hidden_images_numbers = [1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 15, 16, 17, 18]
 process_only_hidden_images = False
 
 remove_axes = False
@@ -39,19 +44,19 @@ white = (255, 255, 255)
 blue = (0, 0, 255)
 black = (0, 0, 0)
 
-shapes_dic = {1: 'triangle',
-              2: 'two_rectangles',
-              3: 'rectangle',
-              4: 'rectangle_missing',
-              5: 'rectangle_missing_2',
-              6: 'circle',
-              11: 'triangle_hidden',
-              12: 'two_rectangles_hidden',
-              13: 'rectangle_hidden',
-              14: 'rectangle_missing_hidden',
-              15: 'rectangle_missing_2_hidden',
-              16: 'circle_hidden',
-              17: 'a1_shape_hidden',
-              18: 'a2_shape_hidden',
-              19: 'a3_shape_hidden'}
+shapes_dic = {1: 'triangle.bmp',
+              2: 'two_rectangles.bmp',
+              3: 'rectangle.bmp',
+              4: 'rectangle_missing.bmp',
+              5: 'rectangle_missing_2.bmp',
+              6: 'circle.bmp',
+              11: 'triangle_hidden.bmp',
+              12: 'two_rectangles_hidden.bmp',
+              13: 'rectangle_hidden.bmp',
+              14: 'rectangle_missing_hidden.bmp',
+              15: 'rectangle_missing_2_hidden.bmp',
+              16: 'circle_hidden.bmp',
+              17: 'a1_shape_hidden.bmp',
+              18: 'a2_shape_hidden.bmp',
+              19: 'a3_shape_hidden.bmp'}
 

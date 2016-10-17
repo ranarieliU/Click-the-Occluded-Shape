@@ -112,17 +112,18 @@ def concatenate_dirs(dir1, dir2):
 
 def open_statistics_file(stat_path):
     general_functions.create_new_path(stat_path)
-    file_name = 'statistics_grid_' + str(config.grid_size) + '_touches_' + str(config.clicks_threshold)
+    file_name = 'statistics_' + str(config.grid_size) + '_' + str(config.clicks_threshold) + \
+                '_' + str(config.sampled_points) + '_' + str(config.number_of_iterations)
     stat_file = XlsxFile(concatenate_dirs(stat_path, file_name))
     stat_file.create_file()
     headers = ['number', 'image_name', '% medial axis', '% touches in radius', 'avg dist touches <-> medial_axis',
-               'avg dist rand_points <-> medial_axis', 'ratio', 'sampled_points', 'iterations']
+               'avg dist rand_points <-> medial_axis', 'ratio', 'grid_size', 'clicks_threshold',
+               'sampled_points', 'iterations']
     stat_file.write_to_sheet(headers)
     return stat_file
 
 
-def main():
-    root_path = os.getcwd()
+def run(root_path):
     orig_shapes_path = concatenate_dirs(root_path, paths_dic['orig_shapes'])
     csv_path = concatenate_dirs(root_path, paths_dic['csv_files'])
     medial_axis_old_path = concatenate_dirs(root_path, paths_dic['medial_axis'])
@@ -133,9 +134,6 @@ def main():
     csv_files = [f for f in listdir(csv_path) if isfile(join(csv_path, f)) and f.endswith('.csv')]
     shapes_dic = config.shapes_dic
     stat_file = open_statistics_file(statistics_path)
-
-    for k, v in shapes_dic.items():
-        shapes_dic[k] += '.bmp'
 
     for csv_file in csv_files:
         x_list, y_list = read_csv(concatenate_dirs(csv_path, csv_file))
@@ -188,11 +186,27 @@ def main():
 
         stat_row = [number, shape_name, medial_axis_percentage, percentage_in_radius,
                     avg_dist_touches_medial_axis, min_avg_dist_rand_points_medial_axis,
-                    avg_dist_ratio, config.sampled_points, config.number_of_iterations]
+                    avg_dist_ratio, config.grid_size, config.clicks_threshold,
+                    config.sampled_points, config.number_of_iterations]
         stat_file.write_to_sheet(stat_row)
 
     log.info('Finished successfully! Exiting...')
+
     stat_file.save_workbook()
+    os.chdir(root_path)
+
+
+def main():
+    root_path = os.getcwd()
+    for grid_size in config.grid_sizes_list:
+        for sampled_points in config.sampled_points_list:
+            for iterations in config.number_iterations_list:
+                for touch_threshold in config.touches_threshold_list:
+                    [config.clicks_threshold, config.grid_size, config.number_of_iterations, config.sampled_points] = \
+                        [touch_threshold, grid_size, iterations, sampled_points]
+                    log.info(str(touch_threshold) + ' ' + str(grid_size) + ' ' +
+                             str(iterations) + ' ' + str(sampled_points))
+                    run(root_path)
 
 
 if __name__ == "__main__":
