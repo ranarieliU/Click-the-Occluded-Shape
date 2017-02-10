@@ -128,6 +128,7 @@ def run_funcs(old_image, new_image, path_for_new_images):
     print("Finished for:")
     print(new_image)
 
+
 def main():
 
     orig_path = os.getcwd() # change if images are in another path (inner folder or something)
@@ -143,7 +144,15 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+    deer_name = 'deer.bmp'
+    im = read_image(deer_name)
+    boundaries = calc_boundaries(im)
+    im = mark_boundary(im, boundaries, (0, 0, 0))
+    im = whiten(im)
+    im = replace_white_and_black(im)
+    im.save('new_' + deer_name)
+
 
 
 

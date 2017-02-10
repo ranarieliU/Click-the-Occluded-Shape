@@ -100,9 +100,9 @@ def debugging_draw_points(size, image_name, touch_points, medial_axis, sampled_p
     general_functions.create_new_path(debug_path)
     (width, height) = size
     new_img = Image.new('RGB', (width, height), "gray")
-    draw_points(new_img, touch_points, config.white)
+    # draw_points(new_img, touch_points, config.white)
     draw_points(new_img, medial_axis, config.red)
-    draw_points(new_img, sampled_points, config.blue)
+    draw_points(new_img, sampled_points, config.white)
     new_img.save(concatenate_dirs(debug_path, image_name))
 
 
@@ -116,9 +116,10 @@ def open_statistics_file(stat_path):
                 '_' + str(config.sampled_points) + '_' + str(config.number_of_iterations)
     stat_file = XlsxFile(concatenate_dirs(stat_path, file_name))
     stat_file.create_file()
-    headers = ['number', 'image_name', '% medial axis', '% touches in radius', 'avg dist touches <-> medial_axis',
+    headers = ['number', 'image_name', '% medial axis', '% medial axis and radius', '% touches in radius',
+               'avg dist touches <-> medial_axis',
                'avg dist rand_points <-> medial_axis', 'ratio', 'grid_size', 'clicks_threshold',
-               'sampled_points', 'iterations']
+               'sampled_points', 'iterations', 'radius']
     stat_file.write_to_sheet(headers)
     return stat_file
 
@@ -128,9 +129,11 @@ def run(root_path):
     csv_path = concatenate_dirs(root_path, paths_dic['csv_files'])
     medial_axis_old_path = concatenate_dirs(root_path, paths_dic['medial_axis'])
     medial_axis_new_path = concatenate_dirs(root_path, paths_dic['medial_axis_new_theorem'])
+    curve_completion_path = concatenate_dirs(root_path, paths_dic['curve_completion'])
     heat_maps_path = concatenate_dirs(root_path, paths_dic['heat_maps'])
     debug_path = concatenate_dirs(root_path, paths_dic['debug'])
     statistics_path = concatenate_dirs(root_path, paths_dic['statistics'])
+
     csv_files = [f for f in listdir(csv_path) if isfile(join(csv_path, f)) and f.endswith('.csv')]
     shapes_dic = config.shapes_dic
     stat_file = open_statistics_file(statistics_path)
@@ -147,6 +150,8 @@ def run(root_path):
         log.info('processing shape ' + shape_name)
         if config.new_medial_axis:
             img = get_image(concatenate_dirs(medial_axis_new_path, image_name))
+        elif config.curve_completion:
+            img = get_image(concatenate_dirs(curve_completion_path, image_name))
         else:
             img = get_image(concatenate_dirs(medial_axis_old_path, image_name))
 
@@ -178,16 +183,26 @@ def run(root_path):
 
         # statistics
         medial_axis_percentage = float(len(medial_axis) / len(unf_points) * 100)
-        percentage_in_radius = analysis.percent_in_range(hexbin_centres, medial_axis)
-        avg_dist_touches_medial_axis = \
-            general_functions.find_avarage_distance_from_medial_axis(hexbin_centres, medial_axis)
-        min_avg_dist_rand_points_medial_axis = min(distances_sample)
-        avg_dist_ratio = min_avg_dist_rand_points_medial_axis / avg_dist_touches_medial_axis
+        if config.do_all_analysis:
+            if config.do_radius_analysis:
+                percentage_in_radius = analysis.percent_in_range(hexbin_centres, medial_axis)
+                percentage_of_medial_axis_and_radius = analysis.percent_in_range(unf_points, medial_axis)
+            else:
+                percentage_in_radius = 0
+                percentage_of_medial_axis_and_radius = 0
+            avg_dist_touches_medial_axis = \
+                general_functions.find_avarage_distance_from_medial_axis(hexbin_centres, medial_axis)
+            min_avg_dist_rand_points_medial_axis = min(distances_sample)
+            avg_dist_ratio = min_avg_dist_rand_points_medial_axis / avg_dist_touches_medial_axis
+        else:
+            percentage_in_radius, percentage_of_medial_axis_and_radius, avg_dist_touches_medial_axis, \
+                min_avg_dist_rand_points_medial_axis, avg_dist_ratio = [0, 0, 0, 0, 0]
 
         stat_row = [number, shape_name, medial_axis_percentage, percentage_in_radius,
+                    percentage_of_medial_axis_and_radius,
                     avg_dist_touches_medial_axis, min_avg_dist_rand_points_medial_axis,
                     avg_dist_ratio, config.grid_size, config.clicks_threshold,
-                    config.sampled_points, config.number_of_iterations]
+                    config.sampled_points, config.number_of_iterations, config.radius_threshold]
         stat_file.write_to_sheet(stat_row)
 
     log.info('Finished successfully! Exiting...')
@@ -201,12 +216,14 @@ def main():
     for grid_size in config.grid_sizes_list:
         for sampled_points in config.sampled_points_list:
             for iterations in config.number_iterations_list:
-                for touch_threshold in config.touches_threshold_list:
-                    [config.clicks_threshold, config.grid_size, config.number_of_iterations, config.sampled_points] = \
-                        [touch_threshold, grid_size, iterations, sampled_points]
-                    log.info(str(touch_threshold) + ' ' + str(grid_size) + ' ' +
-                             str(iterations) + ' ' + str(sampled_points))
-                    run(root_path)
+                for radius in config.radius_list:
+                    for touch_threshold in config.touches_threshold_list:
+                        [config.clicks_threshold, config.grid_size, config.number_of_iterations,
+                         config.sampled_points, config.radius_threshold] = \
+                        [touch_threshold, grid_size, iterations, sampled_points, radius]
+                        log.info(str(touch_threshold) + ' ' + str(grid_size) + ' ' +
+                                 str(iterations) + ' ' + str(sampled_points) + ' ' + str(radius))
+                        run(root_path)
 
 
 if __name__ == "__main__":

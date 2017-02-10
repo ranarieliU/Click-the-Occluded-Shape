@@ -2,23 +2,46 @@
 clicks_threshold = 3
 grid_size = 70
 
-touches_threshold_list = [2, 3, 4, 5]
-grid_sizes_list = [70, 60, 80, 50]
-number_iterations_list = [500, 1000, 2000]
-sampled_points_list = [200, 1000]
+'''
+touches_threshold_list = [3, 4]
+grid_sizes_list = [70, 50]
+number_iterations_list = [1000]
+sampled_points_list = [1000]
+radius_list = [15, 20, 25]
+'''
 
-number_of_iterations = 1
+# which parts to run - configurations
 
-sampled_points = 200
+# use new medial axis theorem
+new_medial_axis = False
+
+curve_completion = False
+
+# create heat maps
+create_heat_maps = True
 
 # if set to True, creates debug images `number_of_iterations` times.
 # so for debugging - best to set `number_of_iterations` to 1
 debug_images = False
-create_heat_maps = False
-new_medial_axis = True
 
-not_hidden_images_numbers = [1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 15, 16, 17, 18]
-process_only_hidden_images = False
+do_all_analysis = False
+do_radius_analysis = False
+
+# not_hidden_images_numbers = [1, 2, 3, 4, 5, 6]
+not_hidden_images_numbers = [1, 2, 3, 4, 5, 6, 12, 13, 14, 15, 17, 18, 19]
+process_only_hidden_images = True
+
+
+touches_threshold_list = [3]
+grid_sizes_list = [70]
+number_iterations_list = [50]
+sampled_points_list = [1000]
+radius_list = [1]
+
+
+number_of_iterations = 1
+
+sampled_points = 200
 
 remove_axes = False
 show_plot = False
@@ -31,7 +54,8 @@ paths_dic = {
     'medial_axis': 'medial_axised',
     'medial_axis_new_theorem': 'medial_axised_new_theorem',
     'debug': 'debug_images',
-    'statistics': 'statistics'
+    'statistics': 'statistics',
+    'curve_completion': 'curve_completion'
 }
 
 
