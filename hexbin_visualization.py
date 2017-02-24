@@ -107,7 +107,7 @@ def debugging_draw_points(size, image_name, touch_points, medial_axis, sampled_p
 
 
 def concatenate_dirs(dir1, dir2):
-    return dir1 + '\\' + dir2
+    return dir1 + '/' + dir2
 
 
 def open_statistics_file(stat_path):

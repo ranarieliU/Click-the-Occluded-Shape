@@ -34,8 +34,8 @@ process_only_hidden_images = True
 
 touches_threshold_list = [3]
 grid_sizes_list = [70]
-number_iterations_list = [50]
-sampled_points_list = [1000]
+number_iterations_list = [1]
+sampled_points_list = [200]
 radius_list = [1]
 
 
