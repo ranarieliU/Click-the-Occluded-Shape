@@ -1,6 +1,7 @@
 from os import listdir
 from os.path import isfile, join
 from os import getcwd
+# from PIL import Image
 import pylab as pl
 import time
 import os.path
@@ -23,10 +24,22 @@ def print_files_in_dir():
     print(onlyfiles)
 
 
+def join_path(dir1, dir2):
+    import os
+    return os.path.join(dir1, dir2)
+
+
 def create_new_path(new_path):
     if not os.path.exists(new_path):
         os.makedirs(new_path)
     os.chdir(new_path)
+
+
+def save_on_path(image, image_name, save_path):
+    cur = os.getcwd()
+    os.chdir(save_path)
+    image.save(image_name)
+    os.chdir(cur)
 
 
 def show_all_colors(img):

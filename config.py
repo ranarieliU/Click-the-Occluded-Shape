@@ -1,6 +1,14 @@
-# hexbins configurations
+# Hexagon Binning Configuration
 clicks_threshold = 3
 grid_size = 70
+
+# Analysis Configuration
+number_of_iterations = 1
+sampled_points = 200
+
+# Threshold in pixels
+radius_threshold = 20
+
 
 '''
 touches_threshold_list = [3, 4]
@@ -39,18 +47,15 @@ sampled_points_list = [200]
 radius_list = [1]
 
 
-number_of_iterations = 1
-
-sampled_points = 200
-
 remove_axes = False
 show_plot = False
 
 # directories names dic
 paths_dic = {
-    'orig_shapes': 'orig_shapes',
+    'orig_shapes': 'app_shapes',
     'csv_files': 'csv_files',
     'heat_maps': 'heat_maps',
+    'prepared_for_medial_axis': 'shapes_prepared_for_medial_axis',
     'medial_axis': 'medial_axised',
     'medial_axis_new_theorem': 'medial_axised_new_theorem',
     'debug': 'debug_images',
@@ -59,28 +64,16 @@ paths_dic = {
 }
 
 
-# pixels threshold
-radius_threshold = 20
+colors_dic = {
+    'red': (255, 0, 0),
+    'white': (255, 255, 255),
+    'blue': (0, 0, 255),
+    'black': (0, 0, 0),
+    'gray': (191, 191, 191)
+}
 
-# colors
-red = (255, 0, 0)
-white = (255, 255, 255)
-blue = (0, 0, 255)
-black = (0, 0, 0)
-
-shapes_dic = {1: 'triangle.bmp',
-              2: 'two_rectangles.bmp',
-              3: 'rectangle.bmp',
-              4: 'rectangle_missing.bmp',
-              5: 'rectangle_missing_2.bmp',
-              6: 'circle.bmp',
-              11: 'triangle_hidden.bmp',
-              12: 'two_rectangles_hidden.bmp',
-              13: 'rectangle_hidden.bmp',
-              14: 'rectangle_missing_hidden.bmp',
-              15: 'rectangle_missing_2_hidden.bmp',
-              16: 'circle_hidden.bmp',
-              17: 'a1_shape_hidden.bmp',
-              18: 'a2_shape_hidden.bmp',
-              19: 'a3_shape_hidden.bmp'}
+shapes_dic = {}
+for i in range(1, 9):
+    shapes_dic[i] = 'new_%s.bmp' % str(i)
+    shapes_dic[i+10] = 'new_%s_hidden.bmp' % str(i)
 

@@ -7,7 +7,8 @@ from os.path import isfile, join
 import analysis
 from PIL import Image
 import random
-import general_functions
+import util
+from util import join_path
 from config import paths_dic
 from xlsx_files import XlsxFile
 from logger import log
@@ -37,7 +38,7 @@ def get_medial_axis(image):
     for i in range(width):
         for j in range(height):
             rgb = pix[i, j]
-            if list(rgb) == list(config.red):
+            if list(rgb) == list(config.colors_dic['red']):
                 medial_axis.append([j, i])
     return medial_axis
 
@@ -97,24 +98,20 @@ def take_sample(points):
 
 
 def debugging_draw_points(size, image_name, touch_points, medial_axis, sampled_points, debug_path):
-    general_functions.create_new_path(debug_path)
+    util.create_new_path(debug_path)
     (width, height) = size
     new_img = Image.new('RGB', (width, height), "gray")
-    # draw_points(new_img, touch_points, config.white)
-    draw_points(new_img, medial_axis, config.red)
-    draw_points(new_img, sampled_points, config.white)
-    new_img.save(concatenate_dirs(debug_path, image_name))
-
-
-def concatenate_dirs(dir1, dir2):
-    return dir1 + '/' + dir2
+    # draw_points(new_img, touch_points, config.colors_dic['white'])
+    draw_points(new_img, medial_axis, config.colors_dic['red'])
+    draw_points(new_img, sampled_points, config.colors_dic['white'])
+    new_img.save(join_path(debug_path, image_name))
 
 
 def open_statistics_file(stat_path):
-    general_functions.create_new_path(stat_path)
+    util.create_new_path(stat_path)
     file_name = 'statistics_' + str(config.grid_size) + '_' + str(config.clicks_threshold) + \
                 '_' + str(config.sampled_points) + '_' + str(config.number_of_iterations)
-    stat_file = XlsxFile(concatenate_dirs(stat_path, file_name))
+    stat_file = XlsxFile(join_path(stat_path, file_name))
     stat_file.create_file()
     headers = ['number', 'image_name', '% medial axis', '% medial axis and radius', '% touches in radius',
                'avg dist touches <-> medial_axis',
@@ -125,21 +122,21 @@ def open_statistics_file(stat_path):
 
 
 def run(root_path):
-    orig_shapes_path = concatenate_dirs(root_path, paths_dic['orig_shapes'])
-    csv_path = concatenate_dirs(root_path, paths_dic['csv_files'])
-    medial_axis_old_path = concatenate_dirs(root_path, paths_dic['medial_axis'])
-    medial_axis_new_path = concatenate_dirs(root_path, paths_dic['medial_axis_new_theorem'])
-    curve_completion_path = concatenate_dirs(root_path, paths_dic['curve_completion'])
-    heat_maps_path = concatenate_dirs(root_path, paths_dic['heat_maps'])
-    debug_path = concatenate_dirs(root_path, paths_dic['debug'])
-    statistics_path = concatenate_dirs(root_path, paths_dic['statistics'])
+    orig_shapes_path = join_path(root_path, paths_dic['orig_shapes'])
+    csv_path = join_path(root_path, paths_dic['csv_files'])
+    medial_axis_old_path = join_path(root_path, paths_dic['medial_axis'])
+    medial_axis_new_path = join_path(root_path, paths_dic['medial_axis_new_theorem'])
+    curve_completion_path = join_path(root_path, paths_dic['curve_completion'])
+    heat_maps_path = join_path(root_path, paths_dic['heat_maps'])
+    debug_path = join_path(root_path, paths_dic['debug'])
+    statistics_path = join_path(root_path, paths_dic['statistics'])
 
     csv_files = [f for f in listdir(csv_path) if isfile(join(csv_path, f)) and f.endswith('.csv')]
     shapes_dic = config.shapes_dic
     stat_file = open_statistics_file(statistics_path)
 
     for csv_file in csv_files:
-        x_list, y_list = read_csv(concatenate_dirs(csv_path, csv_file))
+        x_list, y_list = read_csv(join_path(csv_path, csv_file))
         csv_suffix_location = csv_file.find('.csv')
         number = int(csv_file[0:csv_suffix_location])
         if config.process_only_hidden_images:
@@ -149,11 +146,11 @@ def run(root_path):
         shape_name = image_name[:image_name.find('.bmp')]
         log.info('processing shape ' + shape_name)
         if config.new_medial_axis:
-            img = get_image(concatenate_dirs(medial_axis_new_path, image_name))
+            img = get_image(join_path(medial_axis_new_path, image_name))
         elif config.curve_completion:
-            img = get_image(concatenate_dirs(curve_completion_path, image_name))
+            img = get_image(join_path(curve_completion_path, image_name))
         else:
-            img = get_image(concatenate_dirs(medial_axis_old_path, image_name))
+            img = get_image(join_path(medial_axis_old_path, image_name))
 
         # list of pairs (points) where touches have been made
         touch_points = list(zip(y_list, x_list))
@@ -161,7 +158,7 @@ def run(root_path):
         # list of pairs (points) of the medial axis
         medial_axis = get_medial_axis(img)
 
-        orig_image = get_image(concatenate_dirs(orig_shapes_path, image_name))
+        orig_image = get_image(join_path(orig_shapes_path, image_name))
         unf_points = uniform_distribution(orig_image)
 
         image = plot_bins(img, x_list, y_list)
@@ -169,15 +166,15 @@ def run(root_path):
         if config.create_heat_maps:
             bmp_location = image_name.find('.bmp')
             new_image_name = image_name[0:bmp_location] + '_heat_map.png'
-            general_functions.create_new_path(heat_maps_path)
-            pl.savefig(concatenate_dirs(heat_maps_path, new_image_name), bbox_inches='tight', dpi=350)
+            util.create_new_path(heat_maps_path)
+            pl.savefig(join_path(heat_maps_path, new_image_name), bbox_inches='tight', dpi=350)
         pl.close()
 
         distances_sample = []
         for i in range(config.number_of_iterations):
             sampled_points = take_sample(unf_points)
             distances_sample.append(
-                general_functions.find_avarage_distance_from_medial_axis(sampled_points, medial_axis))
+                util.find_avarage_distance_from_medial_axis(sampled_points, medial_axis))
             if config.debug_images:
                 debugging_draw_points(img.size, image_name, touch_points, medial_axis, sampled_points, debug_path)
 
@@ -191,7 +188,7 @@ def run(root_path):
                 percentage_in_radius = 0
                 percentage_of_medial_axis_and_radius = 0
             avg_dist_touches_medial_axis = \
-                general_functions.find_avarage_distance_from_medial_axis(hexbin_centres, medial_axis)
+                util.find_avarage_distance_from_medial_axis(hexbin_centres, medial_axis)
             min_avg_dist_rand_points_medial_axis = min(distances_sample)
             avg_dist_ratio = min_avg_dist_rand_points_medial_axis / avg_dist_touches_medial_axis
         else:
@@ -221,8 +218,10 @@ def main():
                         [config.clicks_threshold, config.grid_size, config.number_of_iterations,
                          config.sampled_points, config.radius_threshold] = \
                         [touch_threshold, grid_size, iterations, sampled_points, radius]
-                        log.info(str(touch_threshold) + ' ' + str(grid_size) + ' ' +
-                                 str(iterations) + ' ' + str(sampled_points) + ' ' + str(radius))
+                        log.info("""
+                        Running with configuration:
+                        Clicks threshold: %d, Grid size: %d, Iterations: %d, Random sampled points: %d""" %
+                                 (touch_threshold, grid_size, iterations, sampled_points))
                         run(root_path)
 
 

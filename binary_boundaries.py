@@ -1,11 +1,12 @@
 from PIL import Image
 from os import listdir
+from util import join_path
+import config
+from config import paths_dic
 import os
+import util
+from logger import log
 from os.path import isfile, join
-
-
-def save_image(path, image):
-    image.save(path)
 
 
 def read_image(path):
@@ -16,42 +17,20 @@ def read_image(path):
 
 # utility func for calc_boundaries
 def is_boundary(image, coord):
-    # print(coord)
     width, height = image.size
     x, y = coord
     r, g, b = image.getpixel((x, y))
+    # If current pixel is white -> not a boundary
     if r > 245 and g > 245 and b > 245:
         return False
     if x == 0 or y == 0 or x == width - 1 or y == height - 1:
         return True
-    try:
-        right = image.getpixel((x - 1, y))
-        left = image.getpixel((x + 1, y))
-        up = image.getpixel((x, y - 1))
-        down = image.getpixel((x, y + 1))
-    except:
-        print((x, width - 1))
-        print((x + 1, y))
-    r, g, b = right
-    if (r is not 191 or g is not 191 or b is not 191):
-        if (r is not 255 or g is not 255 or b is not 255):
-            print(right)
-        return True
-    r, g, b = left
-    if (r is not 191 or g is not 191 or b is not 191):
-        if (r is not 255 or g is not 255 or b is not 255):
-            print(left)
-        return True
-    r, g, b = up
-    if (r is not 191 or g is not 191 or b is not 191):
-        if (r is not 255 or g is not 255 or b is not 255):
-            print(up)
-        return True
-    r, g, b = down
-    if (r is not 191 or g is not 191 or b is not 191):
-        if (r is not 255 or g is not 255 or b is not 255):
-            print(down)
-        return True
+    # If current pixel is gray and has neighbor that is not gray -> a boundary
+    for i in [-1, 1]:
+        coord_1 = image.getpixel((x + i, y))  # Left, Right
+        coord_2 = image.getpixel((x, y + i))  # Down, Up
+        if coord_1 != config.colors_dic['gray'] or coord_2 != config.colors_dic['gray']:
+            return True
     return False
 
 
@@ -66,16 +45,16 @@ def calc_boundaries(image):
     return ans
 
 
-def fix_image(image):
+def improve_coloring(image):
     width, height = image.size
     pixels = image.load()
     for i in range(height):
         for j in range(width):
             r, g, b = image.getpixel((j, i))
             if r < 235 or g < 235 or b < 235:
-                pixels[j, i] = (191, 191, 191)
+                pixels[j, i] = config.colors_dic['gray']
             else:
-                pixels[j, i] = (255, 255, 255)
+                pixels[j, i] = config.colors_dic['white']
     return image
 
 
@@ -85,8 +64,8 @@ def whiten(image):
     for i in range(height):
         for j in range(width):
             curr_color = pixels[j, i]
-            if curr_color[0] < 255 and curr_color[0] > 0:
-                pixels[j, i] = (255, 255, 255)
+            if 0 < curr_color[0] < 255:
+                pixels[j, i] = config.colors_dic['white']
     return image
 
 
@@ -97,9 +76,9 @@ def replace_white_and_black(image):
         for j in range(width):
             curr_color = pixels[j, i]
             if curr_color[0] == 0:
-                pixels[j, i] = (255, 255, 255)
+                pixels[j, i] = config.colors_dic['white']
             elif curr_color[0] == 255:
-                pixels[j, i] = (0, 0, 0)
+                pixels[j, i] = config.colors_dic['black']
     return image
 
 
@@ -110,49 +89,43 @@ def mark_boundary(image, boundaries, color):
     return image
 
 
-def run_funcs(old_image, new_image, path_for_new_images):
-    print(old_image)
-    image = read_image(old_image)
-    print("Finished reading image")
-    image = fix_image(image)
-    print("Finished fixing image")
+def run_funcs(orig_shape_name, folder_input_path, folder_output_path):
+    shape_input_path = join_path(folder_input_path, orig_shape_name)
+    output_image_name = 'binary_%s' % orig_shape_name
+
+    log.info("Reading %s" % orig_shape_name)
+    image = read_image(shape_input_path)
+
+    log.info("Improving shape coloring")
+    image = improve_coloring(image)
+
+    log.info("Calculating boundaries")
     boundaries = calc_boundaries(image)
-    print("Finished calculating boundaries")
-    image = mark_boundary(image, boundaries, (0, 0, 0))
+
+    log.info("Marking boundary")
+    image = mark_boundary(image, boundaries, config.colors_dic['black'])
+
+    log.info("Building binary")
     image = whiten(image)
     image = replace_white_and_black(image)
-    orig_path = os.getcwd()
-    os.chdir(path_for_new_images)
-    save_image(new_image, image)
-    os.chdir(orig_path)
-    print("Finished for:")
-    print(new_image)
+
+    util.save_on_path(image, output_image_name, folder_output_path)
+    log.info("New shape %s saved on %s" % (output_image_name, folder_output_path))
 
 
 def main():
+    input_folder = join_path(os.getcwd(), paths_dic['orig_shapes'])
+    orig_shapes_names = [f for f in listdir(input_folder) if isfile(join(input_folder, f)) and f.endswith('.bmp')]
 
-    orig_path = os.getcwd() # change if images are in another path (inner folder or something)
-    shapes_files = [f for f in listdir(orig_path) if isfile(join(orig_path, f)) and f.endswith('.bmp')]
+    output_folder = join_path(os.getcwd(), paths_dic['prepared_for_medial_axis'])
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
 
-    new_path = orig_path + '\\' + 'new_images'
-    if not os.path.exists(new_path):
-        os.makedirs(new_path)
+    for orig_shape_name in orig_shapes_names:
+        run_funcs(orig_shape_name, input_folder, output_folder)
 
-    for shape_file in shapes_files:
-        shape_output = 'new_' + shape_file
-        run_funcs(shape_file, shape_output, new_path)
+    log.info("----------------- Finished Successfully -----------------")
 
 
 if __name__ == "__main__":
-    # main()
-    deer_name = 'deer.bmp'
-    im = read_image(deer_name)
-    boundaries = calc_boundaries(im)
-    im = mark_boundary(im, boundaries, (0, 0, 0))
-    im = whiten(im)
-    im = replace_white_and_black(im)
-    im.save('new_' + deer_name)
-
-
-
-
+    main()
