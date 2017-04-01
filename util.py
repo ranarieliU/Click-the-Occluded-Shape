@@ -1,11 +1,27 @@
 from os import listdir
 from os.path import isfile, join
+from PIL import Image
 from os import getcwd
-# from PIL import Image
 import pylab as pl
 import time
 import os.path
 import math
+
+
+def read_image(path):
+    im = Image.open(path)
+    rgb_im = im.convert('RGB')
+    return rgb_im
+
+
+def get_binary_image_name(orig_name):
+    return 'binary_%s' % orig_name
+
+
+def get_image_name_clean_after_mfd(orig_name):
+    orig_without_suffix = orig_name[:orig_name.find('.bmp')]
+    # orig_without_suffix = orig_name.split('.')[0]
+    return 'binary_%s_med.bmp' % orig_without_suffix
 
 
 def find_minimum_distance(src, target_list):

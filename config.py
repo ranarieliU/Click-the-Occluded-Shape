@@ -1,66 +1,42 @@
-# Hexagon Binning Configuration
-clicks_threshold = 3
-grid_size = 70
+produce_heat_maps = True
+run_avg_dist_analysis = True
+run_radius_analysis = False
 
-# Analysis Configuration
-number_of_iterations = 1
-sampled_points = 200
-
-# Threshold in pixels
-radius_threshold = 20
-
-
-'''
-touches_threshold_list = [3, 4]
-grid_sizes_list = [70, 50]
-number_iterations_list = [1000]
-sampled_points_list = [1000]
-radius_list = [15, 20, 25]
-'''
-
-# which parts to run - configurations
-
-# use new medial axis theorem
-new_medial_axis = False
-
-curve_completion = False
-
-# create heat maps
-create_heat_maps = True
-
-# if set to True, creates debug images `number_of_iterations` times.
+# If set to True, creates debug images `number_of_iterations` times.
 # so for debugging - best to set `number_of_iterations` to 1
-debug_images = False
+debug_images = True
 
-do_all_analysis = False
-do_radius_analysis = False
+images_subset = [1, 2, 3, 6, 7, 8, 11, 12, 13, 16, 17, 18]
+run_subset = False
 
-# not_hidden_images_numbers = [1, 2, 3, 4, 5, 6]
-not_hidden_images_numbers = [1, 2, 3, 4, 5, 6, 12, 13, 14, 15, 17, 18, 19]
-process_only_hidden_images = True
-
-
+# Hexagon Binning Configuration
 touches_threshold_list = [3]
 grid_sizes_list = [70]
+
+# # Analysis Configuration
 number_iterations_list = [1]
 sampled_points_list = [200]
-radius_list = [1]
 
+# Threshold in pixels
+radius_list = [20]
+
+
+curr_clicks_threshold, curr_grid_size, curr_number_of_iterations, \
+    curr_sampled_points, curr_radius_threshold = 0, 0, 0, 0, 0
 
 remove_axes = False
 show_plot = False
 
-# directories names dic
+# folder names
 paths_dic = {
     'orig_shapes': 'app_shapes',
     'csv_files': 'csv_files',
     'heat_maps': 'heat_maps',
     'prepared_for_medial_axis': 'shapes_prepared_for_medial_axis',
-    'medial_axis': 'medial_axised',
-    'medial_axis_new_theorem': 'medial_axised_new_theorem',
+    'after_mfd': 'after_mfd',
+    'medial_axised': 'clean_after_mfd',
     'debug': 'debug_images',
-    'statistics': 'statistics',
-    'curve_completion': 'curve_completion'
+    'statistics': 'statistics'
 }
 
 
