@@ -61,7 +61,7 @@ def main():
     orig_folder = join_path(os.getcwd(), paths_dic['orig_shapes'])
     orig_shapes_names = [f for f in listdir(orig_folder) if isfile(join(orig_folder, f)) and f.endswith('.bmp')]
 
-    before_mfd_folder = join_path(os.getcwd(), paths_dic['prepared_for_medial_axis'])
+    before_mfd_folder = join_path(os.getcwd(), paths_dic['prepared_for_mfd'])
     after_mfd_folder = join_path(os.getcwd(), paths_dic['after_mfd'])
     output_folder = join_path(os.getcwd(), paths_dic['medial_axised'])
 

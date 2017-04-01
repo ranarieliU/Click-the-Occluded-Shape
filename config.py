@@ -31,12 +31,13 @@ show_plot = False
 paths_dic = {
     'orig_shapes': 'app_shapes',
     'csv_files': 'csv_files',
-    'heat_maps': 'heat_maps',
-    'prepared_for_medial_axis': 'shapes_prepared_for_medial_axis',
+    'prepared_for_mfd': 'shapes_prepared_for_mfd',
+    'mfd': 'mfd',
     'after_mfd': 'after_mfd',
     'medial_axised': 'clean_after_mfd',
+    'heat_maps': 'heat_maps',
     'debug': 'debug_images',
-    'statistics': 'statistics'
+    'statistics': 'statistics',
 }
 
 

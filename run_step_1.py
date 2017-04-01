@@ -110,13 +110,14 @@ def main():
     input_folder = join_path(os.getcwd(), paths_dic['orig_shapes'])
     orig_shapes_names = [f for f in listdir(input_folder) if isfile(join(input_folder, f)) and f.endswith('.bmp')]
 
-    output_folder = join_path(os.getcwd(), paths_dic['prepared_for_medial_axis'])
+    output_folder = join_path(os.getcwd(), paths_dic['prepared_for_mfd'])
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
     for orig_shape_name in orig_shapes_names:
         run_funcs(orig_shape_name, input_folder, output_folder)
 
+    log.info("Images prepared for mfd saved to %s" % output_folder)
     log.info("----------------- Finished Successfully -----------------")
 
 
