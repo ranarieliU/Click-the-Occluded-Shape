@@ -98,8 +98,7 @@ def run_funcs(orig_shape_name, folder_input_path, folder_output_path):
 
     log.info("Reading %s" % orig_shape_name)
     image = util.read_image(shape_input_path)
-    util.get_diff_colors(image, True)
-    # exit()
+    
     log.info("Improving shape coloring")
     image = improve_coloring(image)
 
