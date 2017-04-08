@@ -1,0 +1,6 @@
+enum34
+image==1.5.4
+matplotlib==1.5.3
+Pillow
+XlsxWriter==0.9.3
+numpy

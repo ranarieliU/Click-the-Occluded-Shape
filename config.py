@@ -1,57 +1,61 @@
-# hexbins configurations
-clicks_threshold = 3
-grid_size = 70
+produce_heat_maps = True
+run_avg_dist_analysis = True
+run_radius_analysis = True
 
-number_of_iterations = 1
-
-sampled_points = 200
-
-# if set to True, creates debug images `number_of_iterations` times.
+# If set to True, creates debug images `number_of_iterations` times.
 # so for debugging - best to set `number_of_iterations` to 1
-debug_images = False
-create_heat_maps = False
-new_medial_axis = True
+debug_images = True
 
-not_hidden_images_numbers = [1, 2, 3, 4, 5, 6]
-process_only_hidden_images = False
+images_subset = [1, 2, 3, 6, 7, 8]
+run_subset = True
+
+# Hexagon Binning Configuration
+touches_threshold_list = [3]
+grid_sizes_list = [70]
+
+# # Analysis Configuration
+number_iterations_list = [1]
+sampled_points_list = [200]
+
+# Threshold in pixels
+radius_list = [20]
+
+
+curr_clicks_threshold, curr_grid_size, curr_number_of_iterations, \
+    curr_sampled_points, curr_radius_threshold = 0, 0, 0, 0, 0
+
+stat_headers = ['number', 'image_name', '% medial axis', '% medial axis and radius', '% touches in radius',
+               'avg dist touches <-> medial_axis',
+               'avg dist rand_points <-> medial_axis', 'ratio', 'grid_size', 'clicks_threshold',
+               'sampled_points', 'iterations', 'radius']
 
 remove_axes = False
 show_plot = False
 
-# directories names dic
+# folder names
 paths_dic = {
-    'orig_shapes': 'orig_shapes',
+    'orig_shapes': 'app_shapes',
     'csv_files': 'csv_files',
+    'prepared_for_mfd': 'shapes_prepared_for_mfd',
+    'mfd': 'mfd',
+    'after_mfd': 'after_mfd',
+    'medial_axised': 'clean_after_mfd',
     'heat_maps': 'heat_maps',
-    'medial_axis': 'medial_axised',
-    'medial_axis_new_theorem': 'medial_axised_new_theorem',
     'debug': 'debug_images',
-    'statistics': 'statistics'
+    'statistics': 'statistics',
 }
 
 
-# pixels threshold
-radius_threshold = 20
+colors_dic = {
+    'red': (255, 0, 0),
+    'white': (255, 255, 255),
+    'blue': (0, 0, 255),
+    'black': (0, 0, 0),
+    'gray': (191, 191, 191)
+}
 
-# colors
-red = (255, 0, 0)
-white = (255, 255, 255)
-blue = (0, 0, 255)
-black = (0, 0, 0)
-
-shapes_dic = {1: 'triangle',
-              2: 'two_rectangles',
-              3: 'rectangle',
-              4: 'rectangle_missing',
-              5: 'rectangle_missing_2',
-              6: 'circle',
-              11: 'triangle_hidden',
-              12: 'two_rectangles_hidden',
-              13: 'rectangle_hidden',
-              14: 'rectangle_missing_hidden',
-              15: 'rectangle_missing_2_hidden',
-              16: 'circle_hidden',
-              17: 'a1_shape_hidden',
-              18: 'a2_shape_hidden',
-              19: 'a3_shape_hidden'}
+shapes_dic = {}
+for i in range(1, 9):
+    shapes_dic[i] = 'new_%s.bmp' % str(i)
+    shapes_dic[i+10] = 'new_%s_hidden.bmp' % str(i)
 
