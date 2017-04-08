@@ -6,6 +6,7 @@ import pylab as pl
 import time
 import os.path
 import math
+from collections import namedtuple
 
 
 def read_image(path):
@@ -28,7 +29,7 @@ def find_minimum_distance(src, target_list):
     return min(map(lambda x: math.sqrt((src[0] - x[0]) ** 2 + (src[1] - x[1]) ** 2), target_list))
 
 
-def find_avarage_distance_from_medial_axis(points, medial_axis):
+def find_average_distance_from_medial_axis(points, medial_axis):
     minimum_dists = [find_minimum_distance(p, medial_axis) for p in points]
     return sum(minimum_dists) / float(len(minimum_dists))
 
@@ -81,3 +82,23 @@ def show_all_colors(img):
         pl.show()
         time.sleep(2)
         pl.close()
+
+
+def get_diff_colors(image, print_dic=False):
+    (width, height) = image.size
+    Color = namedtuple("Color", ["r", "g", "b"])
+    diff_colors = {}
+    pix = image.load()
+    for i in range(height):
+        for j in range(width):
+            rgb = list(pix[j, i])
+            c = Color(*rgb)
+            if c not in diff_colors:
+                diff_colors[c] = 1
+            else:
+                diff_colors[c] += 1
+    if print_dic:
+        total_pixels = sum(diff_colors.values())
+        for k, v in diff_colors.items():
+            print("{} cnt: {:d} ({:.2f}%)".format(k, v, v / float(total_pixels) * 100))
+    return diff_colors

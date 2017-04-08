@@ -1,3 +1,13 @@
+############################################################################################################
+# This step is taking the original shapes from app and transforming to binary images ready for running the mfd
+#
+# usage:
+#
+#   python3 run_step_1.py
+#
+############################################################################################################
+
+
 from os import listdir
 from util import join_path
 import config
@@ -88,7 +98,8 @@ def run_funcs(orig_shape_name, folder_input_path, folder_output_path):
 
     log.info("Reading %s" % orig_shape_name)
     image = util.read_image(shape_input_path)
-
+    util.get_diff_colors(image, True)
+    # exit()
     log.info("Improving shape coloring")
     image = improve_coloring(image)
 
@@ -107,6 +118,9 @@ def run_funcs(orig_shape_name, folder_input_path, folder_output_path):
 
 
 def main():
+
+    log.info("Running step 1")
+
     input_folder = join_path(os.getcwd(), paths_dic['orig_shapes'])
     orig_shapes_names = [f for f in listdir(input_folder) if isfile(join(input_folder, f)) and f.endswith('.bmp')]
 

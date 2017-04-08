@@ -1,13 +1,13 @@
 produce_heat_maps = True
 run_avg_dist_analysis = True
-run_radius_analysis = False
+run_radius_analysis = True
 
 # If set to True, creates debug images `number_of_iterations` times.
 # so for debugging - best to set `number_of_iterations` to 1
 debug_images = True
 
-images_subset = [1, 2, 3, 6, 7, 8, 11, 12, 13, 16, 17, 18]
-run_subset = False
+images_subset = [1, 2, 3, 6, 7, 8]
+run_subset = True
 
 # Hexagon Binning Configuration
 touches_threshold_list = [3]
@@ -23,6 +23,11 @@ radius_list = [20]
 
 curr_clicks_threshold, curr_grid_size, curr_number_of_iterations, \
     curr_sampled_points, curr_radius_threshold = 0, 0, 0, 0, 0
+
+stat_headers = ['number', 'image_name', '% medial axis', '% medial axis and radius', '% touches in radius',
+               'avg dist touches <-> medial_axis',
+               'avg dist rand_points <-> medial_axis', 'ratio', 'grid_size', 'clicks_threshold',
+               'sampled_points', 'iterations', 'radius']
 
 remove_axes = False
 show_plot = False

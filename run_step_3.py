@@ -1,3 +1,13 @@
+############################################################################################################
+# This step is taking the shapes resulting from step 2,
+#   removing the noise (extra red lines) and returning frame to white
+#
+# usage:
+#
+#   python3 run_step_3.py
+#
+############################################################################################################
+
 from os import listdir
 from util import join_path
 import config
@@ -58,6 +68,9 @@ def run(orig_shape_name, orig_folder, before_mfd_folder, after_mfd_folder, outpu
 
 
 def main():
+
+    log.info("Running step 3")
+
     orig_folder = join_path(os.getcwd(), paths_dic['orig_shapes'])
     orig_shapes_names = [f for f in listdir(orig_folder) if isfile(join(orig_folder, f)) and f.endswith('.bmp')]
 

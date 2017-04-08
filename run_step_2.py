@@ -1,3 +1,14 @@
+############################################################################################################
+# This step is taking the shapes resulting from step 1 and running the mfd
+#
+# ### Only works on Windows / Linus ###
+#
+# usage:
+#
+#   python3 run_step_2.py
+#
+############################################################################################################
+
 import os
 from os import listdir
 from os.path import isfile, join
@@ -12,6 +23,9 @@ def run(before_mfd_folder, shape_name, output_folder):
 
 
 def main():
+
+    log.info("Running step 2")
+
     mfd_folder = util.join_path(os.getcwd(), config.paths_dic['mfd'])
     before_mfd_folder = util.join_path(os.getcwd(), config.paths_dic['prepared_for_mfd'])
     output_folder = util.join_path(os.getcwd(), config.paths_dic['after_mfd'])

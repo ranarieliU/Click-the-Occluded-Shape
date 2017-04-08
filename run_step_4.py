@@ -1,3 +1,12 @@
+############################################################################################################
+# This step is taking the shapes resulting from step 3, producing heat maps and running analysis
+#
+# usage:
+#
+#   python3 run_step_4.py
+#
+############################################################################################################
+
 import pylab as pl
 import csv
 from os import listdir
@@ -103,14 +112,13 @@ def debugging_draw_points(size, image_name, touch_points, medial_axis, sampled_p
 
 def open_statistics_file(stat_path):
     util.create_new_path(stat_path)
-    file_name = "statistics_%s_%s_%s_%s" % (str(config.curr_grid_size), str(config.curr_clicks_threshold),
-                                            str(config.curr_sampled_points), str(config.curr_number_of_iterations))
+    file_name = "statistics_%s_%s_%s_%s_%s" % (
+        str(config.curr_grid_size), str(config.curr_clicks_threshold),
+        str(config.curr_sampled_points), str(config.curr_number_of_iterations),
+        str(config.curr_radius_threshold))
     stat_file = XlsxFile(join_path(stat_path, file_name))
     stat_file.create_file()
-    headers = ['number', 'image_name', '% medial axis', '% medial axis and radius', '% touches in radius',
-               'avg dist touches <-> medial_axis',
-               'avg dist rand_points <-> medial_axis', 'ratio', 'grid_size', 'clicks_threshold',
-               'sampled_points', 'iterations', 'radius']
+    headers = config.stat_headers
     stat_file.write_to_sheet(headers)
     return stat_file
 
@@ -148,39 +156,41 @@ def run(root_path):
         unf_points = uniform_distribution(orig_image)
 
         image = plot_bins(img, x_list, y_list)
-        hexbin_centres = bins_data(image)
+        hexbin_centers = bins_data(image)
         if config.produce_heat_maps:
+            log.info("generating heat map")
             bmp_location = image_name.find('.bmp')
             new_image_name = image_name[0:bmp_location] + '_heat_map.png'
             util.create_new_path(heat_maps_path)
             pl.savefig(join_path(heat_maps_path, new_image_name), bbox_inches='tight', dpi=350)
         pl.close()
 
-        distances_sample = []
-        for i in range(config.curr_number_of_iterations):
-            sampled_points = take_sample(unf_points)
-            distances_sample.append(
-                util.find_avarage_distance_from_medial_axis(sampled_points, medial_axis))
-            if config.debug_images:
-                debugging_draw_points(img.size, image_name, touch_points, medial_axis, sampled_points, debug_path)
-
-        # statistics
-        medial_axis_percentage = float(len(medial_axis) / len(unf_points) * 100)
-        percentage_in_radius, percentage_of_medial_axis_and_radius, avg_dist_touches_medial_axis, \
-            min_avg_dist_rand_points_medial_axis, avg_dist_ratio = [0, 0, 0, 0, 0]
+        pct_of_touches_in_radius, medial_axis_percentage, pct_of_medial_axis_and_radius, \
+            avg_dist_touches_medial_axis, min_avg_dist_rand_points_medial_axis, avg_dist_ratio = [0, 0, 0, 0, 0, 0]
 
         if config.run_radius_analysis:
-            percentage_in_radius = analysis.percent_in_range(hexbin_centres, medial_axis)
-            percentage_of_medial_axis_and_radius = analysis.percent_in_range(unf_points, medial_axis)
+            log.info("running radius analysis")
+            pct_of_medial_axis_and_radius = analysis.percent_in_range_2(unf_points, medial_axis)
+            pct_of_touches_in_radius = analysis.percent_in_range_2(hexbin_centers, medial_axis)
 
         if config.run_avg_dist_analysis:
+            log.info("running avg distance analysis")
+            distances_sample = []
+            for i in range(config.curr_number_of_iterations):
+                sampled_points = take_sample(unf_points)
+                distances_sample.append(
+                    util.find_average_distance_from_medial_axis(sampled_points, medial_axis))
+                if config.debug_images:
+                    debugging_draw_points(img.size, image_name, touch_points, medial_axis, sampled_points, debug_path)
+
+            medial_axis_percentage = float(len(medial_axis) / len(unf_points) * 100)
             avg_dist_touches_medial_axis = \
-                util.find_avarage_distance_from_medial_axis(hexbin_centres, medial_axis)
+                util.find_average_distance_from_medial_axis(hexbin_centers, medial_axis)
             min_avg_dist_rand_points_medial_axis = min(distances_sample)
             avg_dist_ratio = min_avg_dist_rand_points_medial_axis / avg_dist_touches_medial_axis
 
-        stat_row = [number, image_name, medial_axis_percentage, percentage_in_radius,
-                    percentage_of_medial_axis_and_radius,
+        stat_row = [number, image_name, medial_axis_percentage,
+                    pct_of_medial_axis_and_radius, pct_of_touches_in_radius,
                     avg_dist_touches_medial_axis, min_avg_dist_rand_points_medial_axis,
                     avg_dist_ratio, config.curr_grid_size, config.curr_clicks_threshold,
                     config.curr_sampled_points, config.curr_number_of_iterations, config.curr_radius_threshold]
@@ -198,6 +208,9 @@ def run(root_path):
 
 
 def main():
+
+    log.info("Running step 4")
+
     root_path = os.getcwd()
     for grid_size in config.grid_sizes_list:
         for sampled_points in config.sampled_points_list:
